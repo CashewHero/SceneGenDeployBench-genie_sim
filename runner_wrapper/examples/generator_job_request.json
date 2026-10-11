@@ -7,8 +7,9 @@
     "primary_sample": "sample-1",
     "source_job_id": null,
     "attempt": 1,
-    "timeout_seconds": 3600,
-    "parameters": {}
+    "timeout_seconds": 1800,
+    "primary_sample_metadata": {"projection": "equirectangular"},
+    "parameters": {"cube_face_size": 1536, "da360_model": "large", "pano_depth_engine": "da360"}
   },
   "inputs": {
     "data": {
@@ -18,6 +19,6 @@
     }
   },
   "runtime": {
-    "output_dir": "/data/output/my-generator@0.1.0/smoke-dataset/sample-1"
+    "output_dir": "/data/output/genie_sim@0.1.0/smoke-dataset/sample-1"
   }
 }

@@ -1,0 +1,11 @@
+# Only PanoRecon and the self-contained wrapper belong in this runner image.
+**
+!runner_wrapper/
+!runner_wrapper/**
+!source/
+!source/geniesim_world/
+!source/geniesim_world/**
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+source/geniesim_world/assets

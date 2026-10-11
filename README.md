@@ -1,3 +1,7 @@
+## DeployBench runner
+
+The `genie_sim` generator accepts one full 2:1 equirectangular `image` and returns a merged `3dgs` PLY through the original Genie Sim World PanoRecon pipeline. It does not install the simulator or ROS. See [runner_wrapper/README.md](runner_wrapper/README.md) for defaults, checkpoints, container builds, and smoke tests.
+
 ![image.png](./docs/image.png)
 
 <div align="center">

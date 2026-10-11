@@ -1,0 +1,32 @@
+catalog_version: 1
+
+runners:
+  - runner: genie_sim
+    version: 0.1.0
+    latest: true
+    display_name: Genie Sim PanoRecon
+    kind: generator
+    contract_version: 1
+    inputs:
+      data:
+        required_sample:
+          required_datatype: [image]
+    job_parameters:
+      cube_face_size: 1536
+      da360_model: large
+      pano_depth_engine: da360
+    scheduling:
+      max_batch_size: 4
+      max_attempts: 2
+      job_timeout_minutes: 30
+      startup_timeout_minutes: 5
+    launcher:
+      driver: docker
+      compat_version: 1
+      image: ghcr.io/cashewhero/scenegendeploybench-genie_sim:0.1.0
+      endpoint:
+        port: 58090
+      gpus: all
+      env:
+        GENIESIM_DEVICE: cuda:0
+      env_passthrough: []
