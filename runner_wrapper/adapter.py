@@ -172,7 +172,10 @@ def run_job(request: dict[str, Any]) -> dict[str, Any]:
             output_name = f"3DGS-scene-{variant}.ply"
             shutil.move(str(merged), workspace / output_name)
             outputs = {request["job"]["primary_sample"]: {"3dgs": output_name}}
-            metadata = {"scene_scale": 1.0, "scene_coordinate_system": "LDB"}
+            # Median of 100 converged TartanAir test trajectories for DA360 Large.
+            # Other depth modes and weights have not been calibrated.
+            scene_scale = 0.69 if parameters["pano_depth_engine"] == "da360" and parameters["da360_model"] == "large" else 1.0
+            metadata = {"scene_scale": scene_scale, "scene_coordinate_system": "LDB"}
             result.update(status="completed", output_files=outputs, output_metadata=metadata)
             report = {
                 "inputs": report["inputs"],

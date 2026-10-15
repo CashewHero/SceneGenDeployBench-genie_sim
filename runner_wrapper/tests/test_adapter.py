@@ -151,20 +151,36 @@ class AdapterTests(unittest.TestCase):
         ):
             result = adapter.run_job(self.request)
         self.assertEqual(result["status"], "completed")
-        self.assertEqual(result["output_metadata"], {"scene_scale": 1.0, "scene_coordinate_system": "LDB"})
+        self.assertEqual(result["output_metadata"], {"scene_scale": 0.69, "scene_coordinate_system": "LDB"})
         output = self.root / "workspace" / result["output_files"]["sample-1"]["3dgs"]
         self.assertEqual(adapter.validate_scene(output), 3)
         report = json.loads((output.parent / result["artifacts"][1]["path"]).read_text())
         self.assertEqual(report["output_files"], result["output_files"])
+        self.assertEqual(report["output_metadata"], result["output_metadata"])
+        np.testing.assert_array_equal(PlyData.read(output)["vertex"].data["z"], [-2, -2, -2])
         self.assertEqual(report["model"]["depth_units"], "relative")
         self.assertIn("fake model test output", (output.parent / result["artifacts"][0]["path"]).read_text())
+
+    def test_other_modes_and_weights_keep_uncalibrated_scale(self) -> None:
+        for parameters in (
+            {"da360_model": "small"},
+            {"da360_model": "base"},
+            {"pano_depth_engine": "sharp"},
+            {"pano_depth_engine": "both"},
+            {"pano_depth_engine": "fuse"},
+        ):
+            with self.subTest(parameters=parameters):
+                self.request["job"]["parameters"] = parameters
+                result = mocked_adapter_job(self.request)
+                self.assertEqual(result["status"], "completed")
+                self.assertEqual(result["output_metadata"]["scene_scale"], 1.0)
 
     def test_server_publishes_only_final_scene_and_artifacts(self) -> None:
         settings = RunnerSettings(
             port=0,
             runner_name="genie_sim",
             runner_type="generator",
-            runner_version="0.1.0",
+            runner_version="0.1.1",
             contract_version=1,
             idle_timeout_seconds=900,
             startup_timeout_seconds=60,
@@ -175,6 +191,7 @@ class AdapterTests(unittest.TestCase):
         request["runtime"] = {"output_dir": str(self.root / "output")}
         result = runner._run_job_in_child_process(request, timeout_seconds=10, kill_after_seconds=15)
         self.assertEqual(result["status"], "completed", result)
+        self.assertEqual(result["output_metadata"], {"scene_scale": 0.69, "scene_coordinate_system": "LDB"})
         names = {path.name for path in (self.root / "output").iterdir()}
         self.assertEqual(
             names, {result["output_files"]["sample-1"]["3dgs"], *[artifact["path"] for artifact in result["artifacts"]]}

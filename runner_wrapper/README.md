@@ -40,7 +40,9 @@ Only the final `3DGS-scene-<id>.ply` is reusable output. The server also publish
 
 The merged scene uses `LDB` coordinates: positive X is left, Y is down, and Z is back relative to the input panorama center. The build verifies all six original cube transforms. No wrapper rotation or color conversion is applied.
 
-`scene_scale=1.0` is an **uncalibrated starting value**, not a claim of metric accuracy. Default `da360` and `both` use min-normalized relative depth. `sharp` and `fuse` use SHARP-derived meter units. Calibrate the chosen mode against the benchmark before setting a deployment-wide scale.
+DA360 Large mode reports `scene_scale=0.69`, rounded from the median `0.6909024119909664` across all 100 converged trajectories of `tartanair-pano-test`. Calibration used the upstream defaults, depth comparison, an initial scale of `0.57`, and a 1% target tolerance. The middle 50% of best scales span about `0.44` to `1.18`, so this is a general default, not a guarantee of per-scene accuracy. The scale changes only output metadata used by downstream rendering; the original PLY remains unchanged.
+
+Other weights and depth modes retain the uncalibrated `scene_scale=1.0`. Default `da360` and `both` use min-normalized relative depth. `sharp` and `fuse` use SHARP-derived meter units. Calibrate those modes separately before choosing a deployment-wide scale.
 
 ## Local checks
 
@@ -69,11 +71,11 @@ The smoke command uses the example request with intended defaults and runs as th
 
 For cache overrides in this helper, supply paths inside the mounted data tree, such as `GENIESIM_SHARP_CHECKPOINT=/data/model_cache/existing/sharp_2572gikvuh.pt`.
 
-The local GPU smoke passed on an RTX 2080 Ti with 11 GiB VRAM using a 1024×512 TartanAir panorama, DA360 Large, and all six 1536×1536 faces. With cached checkpoints, the job took 113 seconds, peaked at 9.9 GiB VRAM and 7.9 GiB host memory, and published a validated PLY containing 6,833,608 Gaussians. All 31 contract and adapter tests passed in the built image as a non-root user. This verifies inference and publication, not scene-quality or scale calibration. Do not silently reduce intended defaults to make a smoke test pass.
+The local GPU smoke passed on an RTX 2080 Ti with 11 GiB VRAM using a 1024×512 TartanAir panorama, DA360 Large, and all six 1536×1536 faces. With cached checkpoints, the job took 113 seconds, peaked at 9.9 GiB VRAM and 7.9 GiB host memory, and published a validated PLY containing 6,833,608 Gaussians. All 32 contract and adapter tests passed in the built image as a non-root user. This verifies inference and publication, not scene-quality or scale calibration. Do not silently reduce intended defaults to make a smoke test pass.
 
 ## Image publication
 
-The checked-in [image workflow](../.github/workflows/runner-image.yaml) is adapted from the wrapper's template and uses `mode=min` build caching. It publishes version-tagged images to GHCR after contract tests. Build and run a real local GPU smoke test before tagging a release. The configured first image is `ghcr.io/cashewhero/scenegendeploybench-genie_sim:0.1.0`.
+The checked-in [image workflow](../.github/workflows/runner-image.yaml) is adapted from the wrapper's template and uses `mode=min` build caching. It publishes version-tagged images to GHCR after contract tests. Build and run a real local GPU smoke test before tagging a release. The configured image is `ghcr.io/cashewhero/scenegendeploybench-genie_sim:0.1.1`.
 
 To recreate the shared workflow template before model-specific edits:
 
